@@ -355,9 +355,12 @@ echo "$INIT_OUT"
 ok "panel initialized"
 
 # Let the Xray service user read TLS materials; keep private keys strict (0640).
+# The panel user is added to the xray group so both uvicorn (TLS listener) and
+# Xray (TLS inbounds) can read the same certificates.
 if [[ -d "${CONF_DIR}/certs" ]]; then
   if getent group xray >/dev/null 2>&1; then
     chown -R root:xray "${CONF_DIR}/certs" 2>/dev/null || true
+    getent passwd smhpanel >/dev/null 2>&1 && usermod -aG xray smhpanel 2>/dev/null || true
   fi
   chmod 755 "${CONF_DIR}/certs" 2>/dev/null || true
   find "${CONF_DIR}/certs" -name "*.crt" -exec chmod 644 {} + 2>/dev/null || true

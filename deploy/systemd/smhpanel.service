@@ -14,12 +14,12 @@ ExecStart=/opt/smhpanel/venv/bin/python -m smhpanel
 Restart=always
 RestartSec=3
 
-# Hardening (sudo helper calls must keep working, so no NoNewPrivileges)
-ProtectHome=true
-PrivateTmp=true
-ProtectSystem=full
-ReadWritePaths=/etc/smhpanel /var/lib/smhpanel /opt/smhpanel
-RestrictSUIDSGID=false
+# Privileged helpers run via sudo and must modify system paths
+# (/etc/ufw, /etc/wireguard, /usr/local/etc/xray, /root/.acme.sh), so this unit
+# intentionally avoids mount-namespace restrictions. The panel process itself
+# still runs as the unprivileged `smhpanel` user; root is reachable only through
+# the nine validated helper scripts in /usr/local/sbin via sudoers.
+NoNewPrivileges=false
 
 [Install]
 WantedBy=multi-user.target
