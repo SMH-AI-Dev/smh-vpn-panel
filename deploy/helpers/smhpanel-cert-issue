@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Issue/renew a certificate for a domain via acme.sh (standalone, port 80).
+# Root via sudo. Installs to /etc/smhpanel/certs/<domain>.crt|.key
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "must run as root" >&2
+  exit 1
+fi
+
+DOMAIN="${1:-}"
+if ! [[ "$DOMAIN" =~ ^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$ ]] || [[ "$DOMAIN" == *".."* ]]; then
+  echo "invalid domain: $DOMAIN" >&2
+  exit 2
+fi
+
+ACME="/root/.acme.sh/acme.sh"
+if [[ ! -x "$ACME" ]]; then
+  echo "acme.sh is not installed (re-run the installer with --domain)" >&2
+  exit 3
+fi
+
+CERT_DIR="/etc/smhpanel/certs"
+mkdir -p "$CERT_DIR"
+
+"$ACME" --set-default-ca --server letsencrypt >/dev/null 2>&1 || true
+
+# --issue is a no-op when the certificate is still valid.
+"$ACME" --issue --standalone -d "$DOMAIN" --keylength ec-256 --server letsencrypt
+
+"$ACME" --install-cert -d "$DOMAIN" --ecc \
+  --fullchain-file "${CERT_DIR}/${DOMAIN}.crt" \
+  --key-file "${CERT_DIR}/${DOMAIN}.key" \
+  --reloadcmd "systemctl restart smhpanel >/dev/null 2>&1 || true"
+
+if getent passwd smhpanel >/dev/null 2>&1; then
+  chown smhpanel:smhpanel "${CERT_DIR}/${DOMAIN}.crt" "${CERT_DIR}/${DOMAIN}.key" 2>/dev/null || true
+fi
+chmod 644 "${CERT_DIR}/${DOMAIN}.crt"
+chmod 640 "${CERT_DIR}/${DOMAIN}.key"
+
+echo "certificate installed for ${DOMAIN}"

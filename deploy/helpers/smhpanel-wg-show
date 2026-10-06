@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Print `wg show <iface> dump` for the panel (traffic accounting). Root via sudo.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "must run as root" >&2
+  exit 1
+fi
+
+IFACE="wg0"
+if command -v jq >/dev/null 2>&1 && [[ -f /etc/smhpanel/config.json ]]; then
+  IFACE="$(jq -r '.wireguard.iface // "wg0"' /etc/smhpanel/config.json 2>/dev/null || echo wg0)"
+fi
+
+wg show "$IFACE" dump 2>/dev/null || true

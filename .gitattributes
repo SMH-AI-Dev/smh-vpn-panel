@@ -1,0 +1,3 @@
+# Ensure shell scripts keep LF endings regardless of the pushing platform.
+*.sh text eol=lf
+deploy/helpers/* text eol=lf

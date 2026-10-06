@@ -1,0 +1,11 @@
+# SMH Panel privileged helper scripts.
+# Each helper validates its own arguments; the panel user may run exactly these.
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-firewall-open
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-firewall-close
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-firewall-status
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-xray-apply
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-wg-apply
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-wg-show
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-service
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-cert-issue
+smhpanel ALL=(root) NOPASSWD: /usr/local/sbin/smhpanel-cert-renew

@@ -1,0 +1,10 @@
+# SMH Panel - fail2ban jails (installed as /etc/fail2ban/jail.d/smhpanel.local)
+[DEFAULT]
+backend = systemd
+bantime = 3600
+findtime = 600
+maxretry = 5
+ignoreip = 127.0.0.1/8 ::1
+
+[sshd]
+enabled = true

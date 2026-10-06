@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Local dev state (never commit)
+dev-data/
+dev-config.json
+*.db
+*.sqlite3
+*.log
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

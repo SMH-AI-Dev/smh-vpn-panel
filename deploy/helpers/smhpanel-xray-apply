@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Validate the candidate Xray config and install it, then restart Xray.
+# Root via sudo. Never overwrites the live config unless validation passes.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "must run as root" >&2
+  exit 1
+fi
+
+DATA_DIR="/var/lib/smhpanel"
+CAND="${DATA_DIR}/xray-config.candidate.json"
+DEST="/usr/local/etc/xray/config.json"
+XRAY_BIN="/usr/local/bin/xray"
+
+if [[ ! -f "$CAND" ]]; then
+  echo "candidate config not found: $CAND" >&2
+  exit 2
+fi
+
+if [[ -x "$XRAY_BIN" ]]; then
+  if ! timeout 20 "$XRAY_BIN" run -test -config "$CAND" >/dev/null 2>&1; then
+    if ! timeout 20 "$XRAY_BIN" -test -config "$CAND" >/dev/null 2>&1; then
+      echo "xray config validation failed; keeping current config" >&2
+      timeout 20 "$XRAY_BIN" run -test -config "$CAND" 2>&1 | tail -n 8 >&2 || true
+      exit 3
+    fi
+  fi
+fi
+
+install -d -m 755 /usr/local/etc/xray
+install -m 640 "$CAND" "$DEST"
+if getent group xray >/dev/null 2>&1; then
+  chown root:xray "$DEST"
+else
+  chown root:root "$DEST"
+fi
+
+if systemctl list-unit-files xray.service >/dev/null 2>&1; then
+  systemctl restart xray || systemctl start xray
+fi
+
+echo "xray config applied"

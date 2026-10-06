@@ -1,0 +1,13 @@
+# SMH Panel - runtime dependencies
+fastapi>=0.115,<1.0
+uvicorn>=0.30,<1.0
+SQLAlchemy>=2.0,<3.0
+pydantic>=2.7,<3.0
+bcrypt>=4.1,<5.0
+PyJWT>=2.8,<3.0
+qrcode>=7.4,<9.0
+pillow>=10.0
+psutil>=5.9
+cryptography>=42.0
+grpcio>=1.66,<2.0
+protobuf>=5.28,<7.0

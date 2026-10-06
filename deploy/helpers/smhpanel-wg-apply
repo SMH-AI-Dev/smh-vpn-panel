@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Install the candidate WireGuard config and (re)load the interface.
+# Root via sudo. Uses `wg syncconf` for hot reload when possible.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "must run as root" >&2
+  exit 1
+fi
+
+IFACE="wg0"
+if command -v jq >/dev/null 2>&1 && [[ -f /etc/smhpanel/config.json ]]; then
+  IFACE="$(jq -r '.wireguard.iface // "wg0"' /etc/smhpanel/config.json 2>/dev/null || echo wg0)"
+fi
+
+CAND="/var/lib/smhpanel/wg-${IFACE}.candidate.conf"
+DEST="/etc/wireguard/${IFACE}.conf"
+
+if [[ ! -f "$CAND" ]]; then
+  echo "candidate config not found: $CAND" >&2
+  exit 2
+fi
+
+install -d -m 700 /etc/wireguard
+install -m 600 "$CAND" "$DEST"
+
+if systemctl is-active --quiet "wg-quick@${IFACE}"; then
+  wg syncconf "$IFACE" <(wg-quick strip "$IFACE")
+else
+  systemctl enable "wg-quick@${IFACE}" >/dev/null 2>&1 || true
+  systemctl start "wg-quick@${IFACE}" 2>/dev/null || wg-quick up "$IFACE"
+fi
+
+echo "wireguard config applied for ${IFACE}"

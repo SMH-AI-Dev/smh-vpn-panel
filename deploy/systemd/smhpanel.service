@@ -1,0 +1,25 @@
+[Unit]
+Description=SMH Panel - self-hosted VPN management panel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=smhpanel
+Group=smhpanel
+WorkingDirectory=/opt/smhpanel/app
+Environment=SMHPANEL_CONFIG=/etc/smhpanel/config.json
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/smhpanel/venv/bin/python -m smhpanel
+Restart=always
+RestartSec=3
+
+# Hardening (sudo helper calls must keep working, so no NoNewPrivileges)
+ProtectHome=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/etc/smhpanel /var/lib/smhpanel /opt/smhpanel
+RestrictSUIDSGID=false
+
+[Install]
+WantedBy=multi-user.target

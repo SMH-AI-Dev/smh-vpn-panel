@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Control SMH Panel related systemd services. Root via sudo.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "must run as root" >&2
+  exit 1
+fi
+
+ACTION="${1:-}"
+TARGET="${2:-}"
+
+if ! [[ "$ACTION" =~ ^(start|stop|restart|status)$ ]]; then
+  echo "invalid action: $ACTION" >&2
+  exit 2
+fi
+
+IFACE="wg0"
+if command -v jq >/dev/null 2>&1 && [[ -f /etc/smhpanel/config.json ]]; then
+  IFACE="$(jq -r '.wireguard.iface // "wg0"' /etc/smhpanel/config.json 2>/dev/null || echo wg0)"
+fi
+
+case "$TARGET" in
+  xray) UNIT="xray" ;;
+  wg) UNIT="wg-quick@${IFACE}" ;;
+  smhpanel) UNIT="smhpanel" ;;
+  *)
+    echo "invalid target: $TARGET" >&2
+    exit 2
+    ;;
+esac
+
+if [[ "$ACTION" == "status" ]]; then
+  systemctl is-active "$UNIT" || true
+else
+  systemctl "$ACTION" "$UNIT"
+fi

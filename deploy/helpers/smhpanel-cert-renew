@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Trigger an acme.sh renewal pass for all certificates. Root via sudo.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+  echo "must run as root" >&2
+  exit 1
+fi
+
+ACME="/root/.acme.sh/acme.sh"
+if [[ ! -x "$ACME" ]]; then
+  echo "acme.sh is not installed"
+  exit 0
+fi
+
+"$ACME" --cron --home /root/.acme.sh
+echo "renewal pass complete"
