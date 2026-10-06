@@ -88,12 +88,14 @@ def test_build_ss_inbound_2022_no_udp_legacy_udp():
                 "network": "tcp",
                 "security": "none",
                 "ss_method": "2022-blake3-aes-256-gcm",
+                "ss_server_key": "SERVERKEY==",
             },
             "clients": [{"email_tag": "ss.2", "credential": "pw2"}],
         }
     )
     assert "network" not in modern["settings"]
     assert modern["settings"]["method"] == "2022-blake3-aes-256-gcm"
+    assert modern["settings"]["password"] == "SERVERKEY=="
 
 
 def test_full_config_shape():

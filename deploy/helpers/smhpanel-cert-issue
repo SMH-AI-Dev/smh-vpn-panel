@@ -33,8 +33,10 @@ mkdir -p "$CERT_DIR"
   --key-file "${CERT_DIR}/${DOMAIN}.key" \
   --reloadcmd "systemctl restart smhpanel >/dev/null 2>&1 || true"
 
-if getent passwd smhpanel >/dev/null 2>&1; then
-  chown smhpanel:smhpanel "${CERT_DIR}/${DOMAIN}.crt" "${CERT_DIR}/${DOMAIN}.key" 2>/dev/null || true
+if getent group xray >/dev/null 2>&1; then
+  chown root:xray "${CERT_DIR}/${DOMAIN}.crt" "${CERT_DIR}/${DOMAIN}.key" 2>/dev/null || true
+else
+  chown root:root "${CERT_DIR}/${DOMAIN}.crt" "${CERT_DIR}/${DOMAIN}.key" 2>/dev/null || true
 fi
 chmod 644 "${CERT_DIR}/${DOMAIN}.crt"
 chmod 640 "${CERT_DIR}/${DOMAIN}.key"

@@ -99,6 +99,11 @@ def list_clients(
     return [serialize_client(c) for c in query.all()]
 
 
+@router.get("/{client_id}")
+def get_client(client_id: int, db: Session = Depends(get_db)):
+    return serialize_client(_get_or_404(db, client_id))
+
+
 @router.post("")
 def create_client(payload: ClientIn, request: Request, db: Session = Depends(get_db)):
     config = request.app.state.config

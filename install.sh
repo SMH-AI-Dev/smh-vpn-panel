@@ -354,6 +354,16 @@ echo "$INIT_OUT"
 [[ $INIT_RC -eq 0 ]] || die "panel initialization failed (see log)"
 ok "panel initialized"
 
+# Let the Xray service user read TLS materials; keep private keys strict (0640).
+if [[ -d "${CONF_DIR}/certs" ]]; then
+  if getent group xray >/dev/null 2>&1; then
+    chown -R root:xray "${CONF_DIR}/certs" 2>/dev/null || true
+  fi
+  chmod 755 "${CONF_DIR}/certs" 2>/dev/null || true
+  find "${CONF_DIR}/certs" -name "*.crt" -exec chmod 644 {} + 2>/dev/null || true
+  find "${CONF_DIR}/certs" -name "*.key" -exec chmod 640 {} + 2>/dev/null || true
+fi
+
 GENERATED_PASS="$(printf '%s\n' "$INIT_OUT" | grep -m1 '^SMHPANEL_ADMIN_PASSWORD=' | cut -d= -f2- || true)"
 
 # ------------------------------ certificate --------------------------------

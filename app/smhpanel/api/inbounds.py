@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-from ..keys import short_ids, x25519_keypair
+from ..keys import random_b64, short_ids, x25519_keypair
 from ..models import Inbound
 from ..schemas import EnableIn, InboundIn, InboundUpdate
 from ..services.wireguard import server_address
@@ -190,7 +190,11 @@ def create_inbound(
     if payload.security == "tls":
         params.update(_resolve_tls_params(config, payload))
     if payload.protocol == "shadowsocks":
-        params["ss_method"] = payload.ss_method or "2022-blake3-aes-256-gcm"
+        method = payload.ss_method or "2022-blake3-aes-256-gcm"
+        params["ss_method"] = method
+        if method.startswith("2022-"):
+            key_len = 16 if method.endswith("aes-128-gcm") else 32
+            params["ss_server_key"] = random_b64(key_len)
 
     row = Inbound(
         tag=_unique_tag(db, payload.tag or f"{payload.protocol}-{payload.port}"),

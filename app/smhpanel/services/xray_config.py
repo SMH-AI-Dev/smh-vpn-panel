@@ -92,7 +92,10 @@ def build_xray_inbound(inbound: dict) -> dict:
     if protocol == "shadowsocks":
         method = params.get("ss_method", "aes-256-gcm")
         settings: dict = {"method": method, "clients": clients}
-        if not method.startswith("2022-"):
+        if method.startswith("2022-"):
+            # SS-2022 multi-user requires the server key alongside per-user keys.
+            settings["password"] = params.get("ss_server_key", "")
+        else:
             # Shadowsocks-2022 ciphers do not support UDP; legacy ones do.
             settings["network"] = "tcp,udp"
     elif protocol == "vless":
