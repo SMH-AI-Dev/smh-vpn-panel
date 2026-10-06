@@ -37,7 +37,12 @@ else
 fi
 
 if systemctl list-unit-files xray.service >/dev/null 2>&1; then
-  systemctl restart xray || systemctl start xray
+  systemctl restart xray || systemctl start xray || true
+  sleep 1
+  if ! systemctl is-active --quiet xray; then
+    echo "warning: xray service is not active after config reload" >&2
+    exit 4
+  fi
 fi
 
 echo "xray config applied"

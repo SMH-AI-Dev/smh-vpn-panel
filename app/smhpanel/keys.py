@@ -19,7 +19,10 @@ def new_uuid() -> str:
 
 
 def x25519_keypair() -> tuple[str, str]:
-    """Return (private_b64, public_b64) raw x25519 keys (base64url, no padding)."""
+    """Return (private_b64, public_b64) raw x25519 keys (base64url, no padding).
+
+    Matches Xray's `xray x25519` output format (used for Reality keys).
+    """
     private = X25519PrivateKey.generate()
     raw_private = private.private_bytes(
         serialization.Encoding.Raw,
@@ -30,6 +33,23 @@ def x25519_keypair() -> tuple[str, str]:
         serialization.Encoding.Raw, serialization.PublicFormat.Raw
     )
     return b64u(raw_private), b64u(raw_public)
+
+
+def x25519_keypair_std() -> tuple[str, str]:
+    """Standard base64 (padded) x25519 keys - the format WireGuard's wg requires."""
+    private = X25519PrivateKey.generate()
+    raw_private = private.private_bytes(
+        serialization.Encoding.Raw,
+        serialization.PrivateFormat.Raw,
+        serialization.NoEncryption(),
+    )
+    raw_public = private.public_key().public_bytes(
+        serialization.Encoding.Raw, serialization.PublicFormat.Raw
+    )
+    return (
+        base64.b64encode(raw_private).decode("ascii"),
+        base64.b64encode(raw_public).decode("ascii"),
+    )
 
 
 def random_b64(nbytes: int) -> str:

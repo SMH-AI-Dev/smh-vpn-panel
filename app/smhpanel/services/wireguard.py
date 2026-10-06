@@ -5,7 +5,7 @@ import ipaddress
 import logging
 from pathlib import Path
 
-from ..keys import x25519_keypair
+from ..keys import x25519_keypair_std
 
 log = logging.getLogger(__name__)
 
@@ -171,7 +171,7 @@ def ensure_interface(config, session):
     )
     if row is not None:
         return row
-    private, public = x25519_keypair()
+    private, public = x25519_keypair_std()
     row = Inbound(
         tag="wireguard",
         protocol="wireguard",

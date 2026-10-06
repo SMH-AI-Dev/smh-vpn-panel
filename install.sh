@@ -292,6 +292,16 @@ else
   warn "Xray could not be installed automatically — install it later and run: smhpanel-xray-apply"
 fi
 
+# The modern official installer runs Xray as user "nobody"; adapt it to a
+# dedicated xray user so the panel can keep the config at 0640 root:xray.
+if [[ -f /etc/systemd/system/xray.service ]] && grep -q "^User=nobody" /etc/systemd/system/xray.service; then
+  getent group xray >/dev/null 2>&1 || groupadd --system xray
+  getent passwd xray >/dev/null 2>&1 || useradd --system --gid xray --no-create-home --shell /usr/sbin/nologin xray
+  sed -i "s/^User=nobody$/User=xray/" /etc/systemd/system/xray.service
+  grep -q "^Group=" /etc/systemd/system/xray.service || sed -i "/^User=xray$/a Group=xray" /etc/systemd/system/xray.service
+  systemctl daemon-reload
+fi
+
 # ------------------------------ memory tuning ------------------------------
 say "Applying kernel/network tuning (BBR, forwarding)…"
 install -m 644 "${SRC}/deploy/sysctl/99-smhpanel.conf" /etc/sysctl.d/99-smhpanel.conf

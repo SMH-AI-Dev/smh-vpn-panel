@@ -78,3 +78,17 @@ def test_parse_dump():
     assert entry["rx"] == 12345 and entry["tx"] == 67890
     assert entry["handshake"] == 1699999999
     assert parse_dump("") == {}
+
+
+def test_wireguard_key_formats():
+    import base64
+
+    from smhpanel.keys import x25519_keypair, x25519_keypair_std
+
+    std_priv, std_pub = x25519_keypair_std()
+    assert len(std_priv) == 44 and std_priv.endswith("=")
+    assert len(std_pub) == 44 and std_pub.endswith("=")
+    assert len(base64.b64decode(std_priv)) == 32
+
+    url_priv, _ = x25519_keypair()
+    assert "=" not in url_priv and len(url_priv) == 43

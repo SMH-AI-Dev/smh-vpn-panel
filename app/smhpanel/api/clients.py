@@ -8,7 +8,13 @@ import qrcode
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
-from ..keys import new_sub_token, new_uuid, random_b64, random_password, x25519_keypair
+from ..keys import (
+    new_sub_token,
+    new_uuid,
+    random_b64,
+    random_password,
+    x25519_keypair_std,
+)
 from ..models import Client, Inbound
 from ..schemas import ClientIn, ClientUpdate, EnableIn
 from ..services.links import links_for_client, subscription_url
@@ -109,7 +115,7 @@ def create_client(payload: ClientIn, request: Request, db: Session = Depends(get
         used = {(c.extra or {}).get("wg_ip") for c in inbound.clients}
         used.discard(None)
         ip = allocate_ip(config, used)
-        private, public = x25519_keypair()
+        private, public = x25519_keypair_std()
         credential = public
         extra = {"wg_private": private, "wg_public": public, "wg_ip": ip}
     else:
