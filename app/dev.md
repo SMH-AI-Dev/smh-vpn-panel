@@ -22,9 +22,10 @@ py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pytest app\tests -q
 ```
 
-28 tests cover: share-link formats, Xray config builder, quota/delta accounting
+29 tests cover: share-link formats, Xray config builder, quota/delta accounting
 (including counter resets), auth + CSRF + rate limiting, full API CRUD flow,
-WireGuard config generation and `wg dump` parsing, Clash YAML output.
+WireGuard config generation and `wg dump` parsing, Clash YAML output, and the
+detailed server-specs snapshot.
 
 ## Run the panel in dev mode
 

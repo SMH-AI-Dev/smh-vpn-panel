@@ -182,8 +182,13 @@ export async function dashboard(root) {
   );
 
   const grid = el("div", { class: "grid cards-3" });
+  const specsCard = card(t("specs_title"));
   const chartCard = card(t("dash_traffic_24h"));
-  root.append(grid, el("div", { class: "grid" }, chartCard));
+  root.append(
+    grid,
+    el("div", { class: "grid" }, specsCard),
+    el("div", { class: "grid" }, chartCard)
+  );
   grid.append(card(null, spinner()), card(null, spinner()), card(null, spinner()));
 
   let status;
@@ -253,17 +258,18 @@ export async function dashboard(root) {
       ),
       percentBar(percent)
     );
+  const memFree = status.mem.available != null ? status.mem.available : status.mem.free;
   resources.append(
     resRow(t("cpu"), status.cpu_percent, `${Math.round(status.cpu_percent)}%`),
     resRow(
       t("ram"),
       status.mem.percent,
-      `${fmtBytes(status.mem.used)} / ${fmtBytes(status.mem.total)}`
+      `${t("spec_used")} ${fmtBytes(status.mem.used)} / ${t("spec_total")} ${fmtBytes(status.mem.total)} · ${t("spec_free")} ${fmtBytes(memFree)}`
     ),
     resRow(
       t("disk"),
       status.disk.percent,
-      `${fmtBytes(status.disk.used)} / ${fmtBytes(status.disk.total)}`
+      `${t("spec_used")} ${fmtBytes(status.disk.used)} / ${t("spec_total")} ${fmtBytes(status.disk.total)} · ${t("spec_free")} ${fmtBytes(status.disk.free)}`
     )
   );
 
@@ -280,6 +286,43 @@ export async function dashboard(root) {
   );
 
   grid.append(services, resources, totals);
+
+  const specs = status.specs || {};
+  const specRow = (label, value) =>
+    el(
+      "div",
+      { class: "row between", style: "padding:3px 0; gap:12px" },
+      el("span", { class: "muted small" }, label),
+      el("span", { class: "small", style: "text-align:left; word-break:break-word" }, value)
+    );
+  specsCard.append(
+    specRow(t("spec_hostname"), specs.hostname || "—"),
+    specRow(t("spec_os"), specs.os || "—"),
+    specRow(t("spec_kernel"), `${specs.kernel || "—"} · ${specs.arch || "—"}`),
+    specRow(t("spec_cpu"), specs.cpu_model || "—"),
+    specRow(
+      t("spec_cores"),
+      t("spec_cores_fmt", specs.cores_physical ?? "—", specs.cores_logical ?? "—") +
+        (specs.cpu_freq_mhz ? ` · ${specs.cpu_freq_mhz} MHz` : "")
+    ),
+    specs.load_avg ? specRow(t("spec_load"), specs.load_avg.join(" · ")) : null,
+    el("div", { class: "label", style: "margin-top:8px" }, t("spec_mem")),
+    specRow(t("spec_total"), fmtBytes(status.mem.total)),
+    specRow(t("spec_used"), `${fmtBytes(status.mem.used)} (${status.mem.percent}%)`),
+    specRow(t("spec_free"), fmtBytes(memFree)),
+    specRow(
+      t("spec_swap"),
+      status.swap && status.swap.total > 0
+        ? `${fmtBytes(status.swap.used)} / ${fmtBytes(status.swap.total)} (${status.swap.percent}%)`
+        : t("spec_disabled")
+    ),
+    specRow(
+      t("spec_disk_root"),
+      `${fmtBytes(status.disk.used)} / ${fmtBytes(status.disk.total)} · ${t("spec_free")}: ${fmtBytes(status.disk.free)} (${status.disk.percent}%)`
+    ),
+    specRow(t("uptime"), fmtDuration(status.uptime_sec))
+  );
+
   chartCard.append(renderChart(samples));
 }
 
