@@ -11,9 +11,9 @@
 [![License](https://img.shields.io/badge/license-MIT-2ea44f?style=for-the-badge)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-ffd343?style=for-the-badge&logo=python&logoColor=black)](https://python.org)
 [![Platform](https://img.shields.io/badge/platform-Ubuntu%2022.04%20%7C%2024.04%20%7C%20Debian%2012-e95420?style=for-the-badge&logo=ubuntu&logoColor=white)](#-پیشنیازها)
-[![Themes](https://img.shields.io/badge/themes-11%20ready-ff69b4?style=for-the-badge)](#-پوستههای-آماده)
+![UI Environments](https://img.shields.io/badge/UI%20environments-63%2B-ff69b4?style=for-the-badge)
 
-<img src="https://img.shields.io/badge/🇮🇷_Persian_UI-RTL-26a69a?style=flat-square" /> <img src="https://img.shields.io/badge/⚡_One--Command_Install-ready-ff9800?style=flat-square" /> <img src="https://img.shields.io/badge/🛡_Hardened_by_default-yes-3f51b5?style=flat-square" /> <img src="https://img.shields.io/badge/🎨_11_Themes-colorful-e91e63?style=flat-square" />
+<img src="https://img.shields.io/badge/🇮🇷_Persian_UI-RTL-26a69a?style=flat-square" /> <img src="https://img.shields.io/badge/⚡_One--Command_Install-ready-ff9800?style=flat-square" /> <img src="https://img.shields.io/badge/🛡_Hardened_by_default-yes-3f51b5?style=flat-square" /> <img src="https://img.shields.io/badge/🎨_63%2B_UI_Environments-colorful-e91e63?style=flat-square" />
 
 </div>
 
@@ -34,7 +34,7 @@
 - 🔗 **لینک و اشتراک** — لینک استاندارد vless/vmess/trojan/ss، کانفیگ WireGuard، لینک Subscription (base64 / raw / Clash)، QR کد
 - 📊 **آمار مصرف** — خواندن مستقیم شمارنده‌های Xray با تحمل ری‌استارت‌ها
 - 🖥️ **مشخصات کامل سرور** — پردازنده، حافظهٔ کل/مصرف‌شده/آزاد، سواپ، دیسک، کرنل و معماری
-- 🎨 **۱۱ پوستهٔ آماده** — از تیره و روشن تا نئون و پاستیلی (انتخاب از داخل پنل)
+- 🎨 **۶۰+ محیط کاربری** — استخراج‌شده از مجموعه‌های واقعی (HyprPanel و PasarGuard) + پیش‌تنظیم‌های چیدمان (فشرده/جادار/صاف)
 - 🇮🇷 **رابط فارسی RTL** با حالت انگلیسی، پوستهٔ تیره/روشن و فونت‌های داخلی
 - 🔒 **امنیت** — نشست امن + CSRF، هش bcrypt، محدودیت تلاش ورود، لاگ رویدادها، دسترسی root فقط از طریق helperهای اعتبارسنجی‌شده
 - 🛠️ **نصب تک‌دستوری** — پنل + امنیت + بهینه‌سازی سرور، همه با یک دستور
@@ -67,18 +67,14 @@ bash <(curl -fsSL https://raw.githubusercontent.com/SMH-AI-Dev/smh-vpn-panel/mai
 
 راهنمای استفاده: [docs/usage-fa.md](docs/usage-fa.md) · رفع اشکال: [docs/troubleshooting-fa.md](docs/troubleshooting-fa.md)
 
-## 🎨 پوسته‌های آماده
+## 🎨 محیط‌های کاربری (۶۰+ محیط آماده)
 
-**۱۱ تم متنوع** از داخل پنل قابل انتخاب است:
+محیط‌های کاربری از دل نمونه‌های واقعی استخراج و به پنل اضافه شدهاند — نه فقط رنگ؛ بلکه رنگ‌بندی کامل تمام اجزای پنل؛ به‌علاوهٔ بخش **چیدمان** که فشردگی، سایه‌ها و گردی گوشه‌ها را هم عوض می‌کند:
 
-| # | پوسته | حال‌وهوا | # | پوسته | حال‌وهوا |
-|---|-------|----------|---|-------|----------|
-| 1 | 🖤 تیره | پیش‌فرض، چشم‌راحت | 7 | 🟣 یاس | بنفش ملایم |
-| 2 | 🤍 روشن | تمیز و اداری | 8 | 💚 نئون | سایبری، درخشان |
-| 3 | 🌌 نیمه‌شب | آبی عمیق | 9 | 🏜️ شنی | گرم و کاغذی |
-| 4 | 🌊 اقیانوس | فیروزه‌ای | 10 | 🍬 پاستیلی | صورتی ملایم |
-| 5 | 🌲 جنگل | سبز آرام | 11 | 🩶 خاکستری | مینیمال تک‌رنگ |
-| 6 | 🌇 غروب | نارنجی-سرخ | | | |
+- 🍭 **۴۵ محیط از مجموعهٔ HyprPanel** — Catppuccin (Latte/Frappe/Macchiato/Mocha)، Dracula، Nord، Gruvbox، Tokyo Night (+Moon)، Rosé Pine (+Moon)، Cyberpunk، Everforest، One Dark، Monochrome — هر کدام در سه حالت **base / split / vivid**
+- 🟨 **۱۶ محیط از سیستم تم PasarGuard** — ترکیب رنگ‌های پایه (Slate/Zinc/Neutral/Mauve/Olive/Mist/Stone/Gray) با لهجه‌ها (Blue/Cyan/Violet/Indigo/Rose/Green/Teal/Amber/Red) در دو حالت تیره/روشن
+- 🧩 **چیدمان‌ها (از PasarGuard):** vega (راحت) · nova (فشرده) · maia (جادار) · lyra (صاف)
+- 🖥️ همه از داخل پنل: دکمهٔ «🎨 محیط کاربری» با جست‌وجو و پیش‌نمایش زنده
 
 ## 📡 پروتکل‌ها
 

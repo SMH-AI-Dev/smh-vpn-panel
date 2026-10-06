@@ -1,5 +1,6 @@
 /* Page renderers. */
 import { t, getLang } from "./i18n.js";
+import { ALL_SKINS, LAYOUTS, applySkin, applyLayout } from "./skins.js";
 import { api } from "./api.js";
 import {
   el,
@@ -121,6 +122,17 @@ export function login(root) {
     type: "password",
     autocomplete: "current-password",
   });
+  const remember = el("input", { type: "checkbox" });
+  try {
+    const saved = JSON.parse(localStorage.getItem("smh_creds") || "{}");
+    if (saved && saved.u) {
+      username.value = saved.u;
+      password.value = saved.p || "";
+      remember.checked = true;
+    }
+  } catch (err) {
+    /* ignore corrupt storage */
+  }
   const errorBox = el("div", { class: "error-text" });
 
   const submit = async (event) => {
@@ -128,6 +140,14 @@ export function login(root) {
     errorBox.textContent = "";
     try {
       await api.login(username.value.trim(), password.value);
+      if (remember.checked) {
+        localStorage.setItem(
+          "smh_creds",
+          JSON.stringify({ u: username.value.trim(), p: password.value })
+        );
+      } else {
+        localStorage.removeItem("smh_creds");
+      }
       location.hash = "#/dashboard";
       if (location.hash === "#/dashboard") reroute();
     } catch (err) {
@@ -154,6 +174,12 @@ export function login(root) {
         el("h3", { class: "center" }, t("login_welcome")),
         field(t("login_user"), username),
         field(t("login_pass"), password),
+        el(
+          "label",
+          { class: "row", style: "gap:8px; cursor:pointer; margin:2px 0 10px" },
+          remember,
+          el("span", { class: "small" }, t("remember_me"))
+        ),
         errorBox,
         el(
           "button",
@@ -1530,7 +1556,7 @@ export async function about(root) {
         "لینک اشتراک",
         "سهمیه و انقضا",
         "آمار زنده از Xray",
-        "۱۱ پوستهٔ آماده",
+        "۶۰+ محیط کاربری",
         "رابط فارسی RTL",
       ].map((item) => el("span", { class: "chip" }, item))
     )
@@ -1595,44 +1621,93 @@ export async function about(root) {
   root.append(author);
 }
 
-/* --------------------------- theme picker ------------------------------ */
-const THEMES = [
-  ["dark", "تیره (پیش‌فرض)", ["#0e1116", "#161b23", "#4c8dff"]],
-  ["light", "روشن", ["#f3f5f9", "#ffffff", "#2f6fe4"]],
-  ["midnight", "نیمه‌شب", ["#0b1020", "#131a33", "#5b8cff"]],
-  ["ocean", "اقیانوس", ["#071a20", "#0e2a33", "#22b8cf"]],
-  ["forest", "جنگل", ["#0c1512", "#14241c", "#2fbf71"]],
-  ["sunset", "غروب", ["#1a0f14", "#2a1720", "#ff7b54"]],
-  ["lavender", "یاس", ["#14101f", "#1e1834", "#a78bfa"]],
-  ["neon", "نئون", ["#05060a", "#0c1220", "#00e5a0"]],
-  ["sand", "شنی", ["#f6f1e7", "#fdfaf3", "#b87333"]],
-  ["candy", "پاستیلی", ["#fdf2f6", "#fff9fc", "#e0559a"]],
-  ["mono", "خاکستری", ["#f2f3f4", "#fbfbfb", "#3b4450"]],
-];
-
-export function openThemePicker() {
-  const grid = el("div", { class: "theme-grid" });
-  const current = localStorage.getItem("smh_theme") || "dark";
-  for (const [key, name, colors] of THEMES) {
-    const card = el(
+/* ------------------- UI environments (skins) picker -------------------- */
+export function openSkinPicker() {
+  const body = el("div", {});
+  const search = el("input", { class: "input mb", placeholder: "جستوجوی محیط کاربری…" });
+  const list = el("div", {});
+  body.append(
+    el("div", { class: "label" }, "چیدمان (از PasarGuard)"),
+    renderLayoutCards(),
+    el(
       "div",
-      { class: `theme-card${key === current ? " active" : ""}` },
-      el(
+      { class: "label", style: "margin-top:14px" },
+      `محیط‌های کاربری — ${ALL_SKINS.length} محیط`
+    ),
+    search,
+    list
+  );
+
+  const renderList = (query = "") => {
+    list.innerHTML = "";
+    const q = String(query || "").trim().toLowerCase();
+    const groups = {};
+    for (const skin of ALL_SKINS) {
+      const hay = `${skin.name} ${skin.source} ${skin.id}`.toLowerCase();
+      if (q && !hay.includes(q)) continue;
+      (groups[skin.source] = groups[skin.source] || []).push(skin);
+    }
+    for (const [source, skins] of Object.entries(groups)) {
+      list.append(
+        el("div", { class: "label", style: "margin-top:10px" }, `${source} (${skins.length})`)
+      );
+      const gridEl = el("div", { class: "theme-grid" });
+      const activeId = localStorage.getItem("smh_skin") || "default-dark";
+      for (const skin of skins) {
+        const card = el(
+          "div",
+          { class: `theme-card${skin.id === activeId ? " active" : ""}` },
+          el(
+            "div",
+            { class: "theme-swatches" },
+            ...[skin.pal.bg, skin.pal.panel, skin.pal.accent].map((c) =>
+              el("span", { class: "theme-swatch", style: `background:${c}` })
+            )
+          ),
+          el("div", { class: "theme-name" }, skin.name),
+          el(
+            "div",
+            { class: "skin-source" },
+            skin.source + (skin.variant && skin.variant !== "base" ? ` · ${skin.variant}` : "")
+          )
+        );
+        card.addEventListener("click", () => {
+          applySkin(skin);
+          localStorage.setItem("smh_skin", skin.id);
+          list.querySelectorAll(".theme-card").forEach((n) => n.classList.remove("active"));
+          card.classList.add("active");
+        });
+        gridEl.append(card);
+      }
+      list.append(gridEl);
+    }
+    if (!Object.keys(groups).length) list.append(el("div", { class: "empty" }, "محیطی پیدا نشد"));
+  };
+
+  function renderLayoutCards() {
+    const gridEl = el("div", { class: "theme-grid" });
+    const activeId = localStorage.getItem("smh_layout") || "vega";
+    for (const layout of LAYOUTS) {
+      const card = el(
         "div",
-        { class: "theme-swatches" },
-        ...colors.map((c) => el("span", { class: "theme-swatch", style: `background:${c}` }))
-      ),
-      el("div", { class: "theme-name" }, name)
-    );
-    card.addEventListener("click", () => {
-      localStorage.setItem("smh_theme", key);
-      document.documentElement.dataset.theme = key;
-      grid.querySelectorAll(".theme-card").forEach((n) => n.classList.remove("active"));
-      card.classList.add("active");
-    });
-    grid.append(card);
+        { class: `theme-card${layout.id === activeId ? " active" : ""}` },
+        el("div", { class: "theme-name" }, layout.name),
+        el("div", { class: "skin-source" }, `${layout.src} · ${layout.density} · ${layout.surface}`)
+      );
+      card.addEventListener("click", () => {
+        applyLayout(layout.id);
+        localStorage.setItem("smh_layout", layout.id);
+        gridEl.querySelectorAll(".theme-card").forEach((n) => n.classList.remove("active"));
+        card.classList.add("active");
+      });
+      gridEl.append(card);
+    }
+    return gridEl;
   }
-  openModal({ title: "انتخاب پوسته", body: grid });
+
+  search.addEventListener("input", () => renderList(search.value));
+  renderList();
+  openModal({ title: "محیط‌های کاربری", body, wide: true });
 }
 
 /* -------------------------------- help -------------------------------- */

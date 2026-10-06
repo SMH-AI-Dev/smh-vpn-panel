@@ -3,6 +3,7 @@ import { t, setLang } from "./i18n.js";
 import { api } from "./api.js";
 import { el } from "./ui.js";
 import { state } from "./state.js";
+import { applySaved } from "./skins.js";
 import * as pages from "./pages.js";
 
 const ICONS = {
@@ -39,9 +40,8 @@ function parseRoute() {
 }
 
 function applyChrome() {
-  const theme = localStorage.getItem("smh_theme") || "dark";
-  document.documentElement.dataset.theme = theme;
   setLang(localStorage.getItem("smh_lang") || "fa");
+  applySaved();
 }
 
 function renderShell(root) {
@@ -84,9 +84,9 @@ function renderShell(root) {
         {
           class: "btn sm ghost",
           type: "button",
-          onclick: () => pages.openThemePicker(),
+          onclick: () => pages.openSkinPicker(),
         },
-        "🎨 " + t("theme")
+        "🎨 " + t("ui_env")
       ),
       el(
         "button",
