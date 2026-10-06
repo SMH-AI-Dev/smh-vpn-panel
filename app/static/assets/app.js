@@ -18,6 +18,8 @@ const ICONS = {
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
   help:
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2A2.5 2.5 0 1 1 12 12v1.4"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
+  about:
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.4 6.7 19l1-5.8L3.5 9.2l5.9-.9z"/></svg>',
 };
 
 const NAV = [
@@ -27,6 +29,7 @@ const NAV = [
   ["settings", "nav_settings"],
   ["logs", "nav_logs"],
   ["help", "nav_help"],
+  ["about", "nav_about"],
 ];
 
 function parseRoute() {
@@ -81,13 +84,9 @@ function renderShell(root) {
         {
           class: "btn sm ghost",
           type: "button",
-          onclick: () => {
-            const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-            localStorage.setItem("smh_theme", next);
-            document.documentElement.dataset.theme = next;
-          },
+          onclick: () => pages.openThemePicker(),
         },
-        t("theme")
+        "🎨 " + t("theme")
       ),
       el(
         "button",

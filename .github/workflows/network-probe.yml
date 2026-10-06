@@ -1,0 +1,25 @@
+name: Network probe (server path check)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe the SMH Panel server from GitHub's network
+        run: |
+          IP="188.209.138.141"
+          echo "== panel health =="
+          curl -sk -m 15 "https://$IP:2053/api/health"; echo
+          echo "== 47KB download over 2053 (3 tries) =="
+          for i in 1 2 3; do
+            curl -sk -m 30 -o /dev/null -w "try$i code=%{http_code} size=%{size_download} t=%{time_total}\n" "https://$IP:2053/assets/pages.js" || true
+          done
+          echo "== 1MB plain http download (port 80) =="
+          curl -s -m 40 -o /dev/null -w "1mb code=%{http_code} size=%{size_download} t=%{time_total}\n" "http://$IP:80/f1048576.bin" || true
+          echo "== 100KB plain http download =="
+          curl -s -m 30 -o /dev/null -w "100k code=%{http_code} size=%{size_download} t=%{time_total}\n" "http://$IP:80/f100000.bin" || true
+          echo "== ssh port reachable =="
+          timeout 8 bash -c "cat < /dev/null > /dev/tcp/$IP/22" && echo "ssh port open" || echo "ssh port check failed"
+          echo "done"

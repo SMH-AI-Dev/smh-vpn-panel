@@ -1506,6 +1506,135 @@ export async function logs(root) {
   holder.append(el("div", { class: "table-wrap" }, table));
 }
 
+/* ------------------------------- about ------------------------------- */
+export async function about(root) {
+  root.append(pageHeader(t("nav_about"), []));
+
+  const hero = el("div", { class: "about-hero mb" });
+  hero.append(
+    el("h1", {}, "SMH Panel"),
+    el(
+      "p",
+      { class: "lead" },
+      "پنل مدیریت VPN شخصی — ساده برای استفاده، حرفه‌ای در زیرساخت. ساخته شد تا در چند ثانیه اینباند بسازی، کاربر اضافه کنی و لینک / QR تحویل بگیری؛ با نصب تک‌دستوری که خودش امنیت و بهینه‌سازی سرور را هم انجام می‌دهد."
+    ),
+    el(
+      "div",
+      { class: "chips" },
+      ...[
+        "VLESS + Reality",
+        "VMess",
+        "Trojan",
+        "Shadowsocks 2022",
+        "WireGuard",
+        "لینک اشتراک",
+        "سهمیه و انقضا",
+        "آمار زنده از Xray",
+        "۱۱ پوستهٔ آماده",
+        "رابط فارسی RTL",
+      ].map((item) => el("span", { class: "chip" }, item))
+    )
+  );
+  root.append(hero);
+
+  const grid = el("div", { class: "grid cards-3 mb" });
+  const feat = (title, body) =>
+    el(
+      "div",
+      { class: "card" },
+      el("div", { class: "card-title" }, title),
+      el("p", { class: "small", style: "margin:0" }, body)
+    );
+  grid.append(
+    feat("چرا SMH Panel؟", "نصب یک‌دستوری که همه‌چیز را خودش تنظیم می‌کند؛ رابط فارسی؛ بدون وابستگی خارجی؛ مناسب برای هر سطحی از تجربه."),
+    feat("امنیت", "پنل هرگز root نیست؛ دسترسی ریشه فقط از طریق helperهای اعتبارسنجی‌شده؛ ufw + fail2ban + به‌روزرسانی خودکار امنیتی."),
+    feat("کارایی", "پیشنهاد پیش‌فرض VLESS + Reality؛ فعال‌سازی BBR؛ مسیریابی ضد سوءاستفاده؛ خواندن مستقیم آمار از خود Xray.")
+  );
+  root.append(grid);
+
+  const quotes = el("div", { class: "card mb" });
+  quotes.append(el("div", { class: "card-title" }, "چند جمله برای دلگرمی"));
+  [
+    "«آزادی، آن لحظه شروع می‌شود که بتوانی بدون دغدغه به آنچه می‌خواهی وصل شوی.»",
+    "«ابزار خوب، کار بزرگ را ساده می‌کند؛ تو فقط به راه فکر کن.»",
+    "«هر سروری که خودت راه می‌اندازی، یک درس تازهٔ مهندسی است.»",
+    "«ساده بساز، محکم نگه دار، امن بمان.»",
+  ].forEach((q) => quotes.append(el("div", { class: "quote" }, q)));
+  root.append(quotes);
+
+  const author = el("div", { class: "card" });
+  author.append(el("div", { class: "card-title" }, "سازنده"));
+  author.append(
+    el(
+      "div",
+      { class: "author-card" },
+      el("div", { class: "avatar" }, "SMH"),
+      el(
+        "div",
+        {},
+        el("div", { class: "grad-text", style: "font-size:19px" }, "سید مهدی حسینی"),
+        el("div", { class: "muted small" }, "Computer Software Engineer · AI Specialist"),
+        el("div", { class: "small" }, "طراحی و توسعهٔ SMH Panel")
+      )
+    )
+  );
+  author.append(
+    el(
+      "div",
+      { class: "author-links" },
+      el("a", { href: "mailto:dev.smh.ai@gmail.com" }, "📧 dev.smh.ai@gmail.com"),
+      el("a", { href: "tel:+989024912785" }, "📱 +98 902 491 2785"),
+      el("a", { href: "https://github.com/SMH-AI-Dev/", target: "_blank", rel: "noreferrer" }, "💻 GitHub — SMH-AI-Dev"),
+      el("a", { href: "https://huggingface.co/SMH-DEV-AI/", target: "_blank", rel: "noreferrer" }, "🤗 Hugging Face — SMH-DEV-AI")
+    )
+  );
+  author.append(el("div", { class: "divider" }));
+  author.append(
+    el("div", { class: "small muted" }, `نسخهٔ پنل: ${(state.me && state.me.version) || "—"} · MIT License · github.com/SMH-AI-Dev/smh-vpn-panel`)
+  );
+  root.append(author);
+}
+
+/* --------------------------- theme picker ------------------------------ */
+const THEMES = [
+  ["dark", "تیره (پیش‌فرض)", ["#0e1116", "#161b23", "#4c8dff"]],
+  ["light", "روشن", ["#f3f5f9", "#ffffff", "#2f6fe4"]],
+  ["midnight", "نیمه‌شب", ["#0b1020", "#131a33", "#5b8cff"]],
+  ["ocean", "اقیانوس", ["#071a20", "#0e2a33", "#22b8cf"]],
+  ["forest", "جنگل", ["#0c1512", "#14241c", "#2fbf71"]],
+  ["sunset", "غروب", ["#1a0f14", "#2a1720", "#ff7b54"]],
+  ["lavender", "یاس", ["#14101f", "#1e1834", "#a78bfa"]],
+  ["neon", "نئون", ["#05060a", "#0c1220", "#00e5a0"]],
+  ["sand", "شنی", ["#f6f1e7", "#fdfaf3", "#b87333"]],
+  ["candy", "پاستیلی", ["#fdf2f6", "#fff9fc", "#e0559a"]],
+  ["mono", "خاکستری", ["#f2f3f4", "#fbfbfb", "#3b4450"]],
+];
+
+export function openThemePicker() {
+  const grid = el("div", { class: "theme-grid" });
+  const current = localStorage.getItem("smh_theme") || "dark";
+  for (const [key, name, colors] of THEMES) {
+    const card = el(
+      "div",
+      { class: `theme-card${key === current ? " active" : ""}` },
+      el(
+        "div",
+        { class: "theme-swatches" },
+        ...colors.map((c) => el("span", { class: "theme-swatch", style: `background:${c}` }))
+      ),
+      el("div", { class: "theme-name" }, name)
+    );
+    card.addEventListener("click", () => {
+      localStorage.setItem("smh_theme", key);
+      document.documentElement.dataset.theme = key;
+      grid.querySelectorAll(".theme-card").forEach((n) => n.classList.remove("active"));
+      card.classList.add("active");
+    });
+    grid.append(card);
+  }
+  openModal({ title: "انتخاب پوسته", body: grid });
+}
+
 /* -------------------------------- help -------------------------------- */
 export async function help(root) {
   root.append(pageHeader(t("help_title"), []));
